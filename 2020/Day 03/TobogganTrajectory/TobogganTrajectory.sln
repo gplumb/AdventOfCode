@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TobogganTrajectory", "TobogganTrajectory\TobogganTrajectory.csproj", "{8B9C890D-E71A-4C87-924B-7AE4B2558972}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8B9C890D-E71A-4C87-924B-7AE4B2558972}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B9C890D-E71A-4C87-924B-7AE4B2558972}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B9C890D-E71A-4C87-924B-7AE4B2558972}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B9C890D-E71A-4C87-924B-7AE4B2558972}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DBB66370-2B47-4913-9568-51F56FF22E5F}
+	EndGlobalSection
+EndGlobal
