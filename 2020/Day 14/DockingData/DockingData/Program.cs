@@ -10,8 +10,13 @@ namespace DockingData
         static void Main(string[] args)
         {
             // Puzzle 1
-            //var memory = LoadMaskedMemory("TestData.txt");
-            var memory = LoadMaskedMemory("Input1.txt");
+            // var memory = LoadMaskedMemory("TestData1.txt", false);
+            // var memory = LoadMaskedMemory("Input1.txt");
+
+            // Puzzle 2
+            //var memory = LoadMaskedMemory("TestData2.txt", true);
+            var memory = LoadMaskedMemory("Input1.txt", true);
+
             var total = memory.Values.Sum();
             Console.WriteLine($"Total = {total}");
         }
@@ -19,7 +24,6 @@ namespace DockingData
         private static long ApplyMaskToValue(Mask mask, long value)
         {
             // Un-comment this to see the workings
-
             /*
             Console.WriteLine(mask.Value);
             Console.WriteLine(Convert.ToString(mask.UpperMask, 2).PadLeft(36, '0'));
@@ -51,11 +55,11 @@ namespace DockingData
             return d;
         }
 
-        static Dictionary<int, long> LoadMaskedMemory(string filename)
+        static Dictionary<long, long> LoadMaskedMemory(string filename, bool isPartTwo)
         {
             var reader = default(StreamReader);
             var input = default(string);
-            var memory = new Dictionary<int, long>();
+            var memory = new Dictionary<long, long>();
             var mask = new Mask();
 
             try
@@ -72,10 +76,17 @@ namespace DockingData
                         }
 
                         var programData = input.Split(new char[] { '[', '=', ']', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                        var location = int.Parse(programData[1]);
-                        var value = int.Parse(programData[2]);
+                        var location = long.Parse(programData[1]);
+                        var value = long.Parse(programData[2]);
 
-                        memory[location] = ApplyMaskToValue(mask, value);
+                        if (isPartTwo)
+                        {
+                            ApplyMaskToLocations(memory, mask.Value, 0, location, value);
+                        }
+                        else
+                        {
+                            memory[location] = ApplyMaskToValue(mask, value);
+                        }
                     }
 
                     return memory;
@@ -85,6 +96,39 @@ namespace DockingData
             {
                 reader?.Close();
             }
+        }
+
+
+        /// <summary>
+        /// Recursively applies the mask to the given target memory address in order to generate
+        /// multiple target addresses based on floating bit 'X'
+        /// </summary>
+        static void ApplyMaskToLocations(Dictionary<long, long> memory, string mask, int offset, long target, long value, long address = 0)
+        {
+            for(int m = offset; m < mask.Length; m++)
+            {
+                // MSB is at the end of the string
+                var bitIndex = mask.Length - m - 1;
+                var bitMask = 1L << bitIndex;
+
+                switch (mask[m])
+                {
+                    case '0':
+                        address |= target & bitMask;
+                        break;
+
+                    case '1':
+                        address |= bitMask;
+                        break;
+
+                    case 'X':
+                        ApplyMaskToLocations(memory, mask, m + 1, target, value, address);
+                        ApplyMaskToLocations(memory, mask, m + 1, target, value, address + bitMask);
+                        return;
+                }
+            }
+
+            memory[address] = value;
         }
     }
 
