@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 
-namespace BinaryDiagnostic
+namespace Lanternfish
 {
     public class Program
     {
