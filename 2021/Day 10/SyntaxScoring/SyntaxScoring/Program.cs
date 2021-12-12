@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 
-namespace SmokeBasin
+namespace SyntaxScoring
 {
     public class Program
     {
