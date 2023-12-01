@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Numerics;
-using System.Reflection.PortableExecutable;
-using System.Runtime.Intrinsics.Arm;
-using System.Text.RegularExpressions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using System.Text.RegularExpressions;
 
 namespace Trebuchet
 {
