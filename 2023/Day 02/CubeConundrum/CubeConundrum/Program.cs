@@ -4,8 +4,8 @@
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(PartOne());
-            // Console.WriteLine(PartTwo());
+            // Console.WriteLine(PartOne());
+            Console.WriteLine(PartTwo());
             Console.ReadLine();
         }
 
@@ -16,6 +16,42 @@
 
             public List<GameSet> Sets = new();
 
+
+            /// <summary>
+            /// Find the lowest possible set of red, green and blue values and then multiply them together
+            /// </summary>
+            public long GetPower()
+            {
+                var redMax = 0;
+                var greenMax = 0;
+                var blueMax = 0;
+
+                foreach (var set in Sets)
+                {
+                    foreach (var cube in set.Cubes)
+                    {
+                        switch (cube.Colour)
+                        {
+                            case Colour.Red:
+                                redMax = (cube.Count > redMax) ? cube.Count : redMax;
+                                continue;
+
+                            case Colour.Green:
+                                greenMax = (cube.Count > greenMax) ? cube.Count : greenMax;
+                                continue;
+
+                            case Colour.Blue:
+                                blueMax = (cube.Count > blueMax) ? cube.Count : blueMax;
+                                continue;
+
+                            default:
+                                throw new Exception("Bad input");
+                        }
+                    }
+                }
+
+                return redMax * greenMax * blueMax;
+            }
 
             public static Game Parse(string input)
             {
@@ -102,6 +138,22 @@
             }
 
             return SumValidGames(games, 12, 13, 14);
+        }
+
+
+        static long PartTwo()
+        {
+            // var data = GetTestData1();
+            var sum = 0L;
+            var data = LoadFromFile("Input1.txt");
+
+            foreach (var entry in data)
+            {
+                var game = Game.Parse(entry.ToLowerInvariant());
+                sum += game.GetPower();
+            }
+
+            return sum;
         }
 
 
