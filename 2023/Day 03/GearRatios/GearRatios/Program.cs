@@ -5,8 +5,8 @@ namespace GearRatios
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(PartOne());
-            // Console.WriteLine(PartTwo());
+            Console.WriteLine(Solve(true));
+            Console.WriteLine(Solve(false));
             Console.ReadLine();
         }
 
@@ -17,28 +17,32 @@ namespace GearRatios
         static int startY = -1;
         static bool isCounting = false;
 
-        static float PartOne()
+
+        static long Solve(bool isPartTwo)
         {
-            // 4361
             // var input = GetTestData1();
             var input = LoadFromFile("Input1.txt");
             var data = ToGrid(input);
 
             // Now search for gears
-            var total = 0f;
+            var total = 0L;
             var isGear = false;
 
-            var maxX = data.GetLength(1);
-            var maxY = data.GetLength(0);
+            var maxX = data.GetLength(0);
+            var maxY = data.GetLength(1);
+            var candidates = new List<Candidate>();
 
             for (int gY = 0; gY < maxY; gY++)
             {
                 // Check for wrap-around in the grid!
                 if (isCounting)
                 {
-                    isGear = IsGear(data, number, nLength, startX, startY, maxX, maxY);
+                    isGear = IsPart(data, maxX, maxY, out var candidate);
                     total += (isGear) ? number : 0;
                     number = 0;
+
+                    if (candidate != null)
+                        candidates.Add(candidate);
                 }
 
                 for (int gX = 0; gX < maxX; gX++)
@@ -53,9 +57,12 @@ namespace GearRatios
                             continue;
 
                         // Stop counting and look around the number
-                        isGear = IsGear(data, number, nLength, startX, startY, maxX, maxY);
+                        isGear = IsPart(data, maxX, maxY, out var candidate);
                         total += (isGear) ? number : 0;
                         number = 0;
+
+                        if (candidate != null)
+                            candidates.Add(candidate);
                     }
                     // Do we have a number?
                     else if (char.IsNumber(ch))
@@ -80,11 +87,34 @@ namespace GearRatios
                     {
                         if (isCounting)
                         {
-                            isGear = IsGear(data, number, nLength, startX, startY, maxX, maxY);
+                            isGear = IsPart(data, maxX, maxY, out var candidate);
                             total += (isGear) ? number : 0;
                             number = 0;
+
+                            if (candidate != null)
+                                candidates.Add(candidate);
                         }
                     }
+                }
+            }
+
+            if (isPartTwo)
+            {
+                total = 0;
+
+                var starMatches = candidates.Where(x => x.symbol.Equals('*')).Select(x => x).ToList();
+
+                // Note. The stars are adjacent to exactly 2 numbers, so we can cheat with linq
+                var matchingPairs = starMatches.SelectMany((x, i) => starMatches.Skip(i + 1), (x, y) => new { First = x, Second = y })
+                                             .Where(pair => pair.First.symbolX == pair.Second.symbolX && pair.First.symbolY == pair.Second.symbolY)
+                                             .ToList();
+
+                total = 0;
+
+                foreach (var pair in matchingPairs)
+                {
+                    // Console.WriteLine($"{pair.First.number} * {pair.Second.number}");
+                    total = total + (pair.First.number * pair.Second.number);
                 }
             }
 
@@ -92,13 +122,23 @@ namespace GearRatios
         }
 
 
-        private static bool IsGear(char[,] data, int number, int nLength, int startX, int startY, int maxX, int maxY)
+        class Candidate
         {
-            var isGear = false;
+            public int number;
+            public char symbol;
+            public int symbolX;
+            public int symbolY;
+        }
+
+
+        private static bool IsPart(char[,] data, int maxX, int maxY, out Candidate candidate)
+        {
+            var isPart = false;
+            candidate = null;
 
             for (int sY = startY - 1; sY < startY + 2; sY++)
             {
-                if (isGear == true)
+                if (isPart == true)
                     break;
 
                 if (sY < 0 || sY >= maxY)
@@ -114,8 +154,16 @@ namespace GearRatios
                     if (ch2 == '.' || char.IsNumber(ch2))
                         continue;
 
-                    Console.WriteLine(number);
-                    isGear = true;
+                    candidate = new Candidate()
+                    {
+                        number = number,
+                        symbol = ch2,
+                        symbolX = sX,
+                        symbolY = sY
+                    };
+
+                    // Console.WriteLine(number);
+                    isPart = true;
                     break;
                 }
             }
@@ -125,8 +173,9 @@ namespace GearRatios
             startX = -1;
             startY = -1;
 
-            return isGear;
+            return isPart;
         }
+
 
         private static char[,] ToGrid(List<string> input)
         {

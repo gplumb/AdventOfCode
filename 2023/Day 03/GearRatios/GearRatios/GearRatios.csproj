@@ -11,9 +11,6 @@
     <Content Include="..\..\Input1.txt" Link="Input1.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\..\Input2.txt" Link="Input2.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Include="..\..\Puzzle1.txt" Link="Puzzle1.txt" />
     <None Include="..\..\Puzzle2.txt" Link="Puzzle2.txt" />
   </ItemGroup>
