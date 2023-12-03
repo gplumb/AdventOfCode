@@ -26,7 +26,7 @@ namespace GearRatios
 
             // Now search for gears
             var total = 0L;
-            var isGear = false;
+            var isPart = false;
 
             var maxX = data.GetLength(0);
             var maxY = data.GetLength(1);
@@ -37,8 +37,8 @@ namespace GearRatios
                 // Check for wrap-around in the grid!
                 if (isCounting)
                 {
-                    isGear = IsPart(data, maxX, maxY, out var candidate);
-                    total += (isGear) ? number : 0;
+                    isPart = IsPart(data, maxX, maxY, out var candidate);
+                    total += (isPart) ? number : 0;
                     number = 0;
 
                     if (candidate != null)
@@ -57,8 +57,8 @@ namespace GearRatios
                             continue;
 
                         // Stop counting and look around the number
-                        isGear = IsPart(data, maxX, maxY, out var candidate);
-                        total += (isGear) ? number : 0;
+                        isPart = IsPart(data, maxX, maxY, out var candidate);
+                        total += (isPart) ? number : 0;
                         number = 0;
 
                         if (candidate != null)
@@ -87,8 +87,8 @@ namespace GearRatios
                     {
                         if (isCounting)
                         {
-                            isGear = IsPart(data, maxX, maxY, out var candidate);
-                            total += (isGear) ? number : 0;
+                            isPart = IsPart(data, maxX, maxY, out var candidate);
+                            total += (isPart) ? number : 0;
                             number = 0;
 
                             if (candidate != null)
@@ -105,13 +105,13 @@ namespace GearRatios
                 var starMatches = candidates.Where(x => x.symbol.Equals('*')).Select(x => x).ToList();
 
                 // Note. The stars are adjacent to exactly 2 numbers, so we can cheat with linq
-                var matchingPairs = starMatches.SelectMany((x, i) => starMatches.Skip(i + 1), (x, y) => new { First = x, Second = y })
-                                             .Where(pair => pair.First.symbolX == pair.Second.symbolX && pair.First.symbolY == pair.Second.symbolY)
-                                             .ToList();
+                var gears = starMatches.SelectMany((x, i) => starMatches.Skip(i + 1), (x, y) => new { First = x, Second = y })
+                                        .Where(pair => pair.First.symbolX == pair.Second.symbolX && pair.First.symbolY == pair.Second.symbolY)
+                                        .ToList();
 
                 total = 0;
 
-                foreach (var pair in matchingPairs)
+                foreach (var pair in gears)
                 {
                     // Console.WriteLine($"{pair.First.number} * {pair.Second.number}");
                     total = total + (pair.First.number * pair.Second.number);
