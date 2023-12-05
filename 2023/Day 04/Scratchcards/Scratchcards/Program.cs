@@ -1,18 +1,21 @@
-﻿namespace Scratchcards
+﻿using System.Net.Sockets;
+
+namespace Scratchcards
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(PartOne());
+            // Console.WriteLine(PartOne());
+            Console.WriteLine(PartTwo());
             Console.ReadLine();
         }
 
 
         static long PartOne()
         {
-            // var data = GetTestData1();
-            var data = LoadFromFile("Input1.txt");
+            var data = GetTestData1();
+            // var data = LoadFromFile("Input1.txt");
             var total = 0L;
 
             foreach (var line in data)
@@ -21,6 +24,41 @@
             }
 
             return total;
+        }
+
+
+        static long PartTwo()
+        {
+            // var data = GetTestData1();
+            var data = LoadFromFile("Input1.txt");
+
+            var cards = new Dictionary<long, Game>();
+            var counts = new Dictionary<long, long>();
+            var stack = new Stack<Game>();
+
+            foreach (var line in data)
+            {
+                var game = Game.Parse(line);
+                cards.Add(game.Id, game);
+                counts.Add(game.Id, 0);
+                stack.Push(game);
+            }
+
+            while (stack.Count > 0)
+            {
+                var game = stack.Pop();
+                counts[game.Id]++;
+
+                for(int x = 0; x < game.Matches; x++)
+                {
+                    var newCardId = game.Id + 1 + x;
+                    
+                    if (cards.ContainsKey(newCardId))
+                        stack.Push(cards[newCardId]);
+                }
+            }
+
+            return counts.Values.Sum();
         }
 
 
@@ -49,6 +87,15 @@
                     }
 
                     return total;
+                }
+            }
+
+
+            public long Matches
+            {
+                get
+                {
+                    return WinningNumbers.Intersect(ActualNumbers).ToList().Count;
                 }
             }
 
