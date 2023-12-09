@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Net.NetworkInformation;
-using System.Reflection;
-
 namespace SeedFertilizer
 {
     internal class Program
@@ -9,7 +6,9 @@ namespace SeedFertilizer
         static void Main(string[] args)
         {
             // SpotChecks();
-            Console.WriteLine(PartOne());
+            //Console.WriteLine(PartOne());
+            Console.WriteLine(PartTwo());
+            Console.ReadLine();
         }
 
 
@@ -63,9 +62,41 @@ namespace SeedFertilizer
         }
 
 
+        static long PartTwo()
+        {
+            Console.WriteLine(DateTime.UtcNow.ToString());
+
+            // var data = GetTestData1();
+            var data = LoadFromFile("Input1.txt");
+            var almanac = Almanac.Parse(data, true);
+
+            var lowest = long.MaxValue;
+
+            // This is *horribly* inefficient, but I am already behind on my days!
+            // TODO: Replace this with something that tracks known ranges so we can avoid a shed-load of checks
+            foreach (var seedRange in almanac.SeedRanges)
+            {
+                Console.WriteLine("Pair!");
+
+                for (long x = 0; x < seedRange.Length; x++)
+                {
+                    var seed = seedRange.Start + x;
+                    var location = almanac.GetLocationForSeed(seed);
+                    lowest = (location < lowest) ? location : lowest;
+                }
+            }
+            
+            return lowest;
+        }
+
+
         class Almanac
         {
+            // Part 1
             public List<long> Seeds = new();
+
+            // Part 2
+            public List<SeedRange> SeedRanges = new();
 
             public RangeMap Seed_To_Soil = new();
             public RangeMap Soil_To_Fertilizer = new();
@@ -86,7 +117,7 @@ namespace SeedFertilizer
                 return HumidityToLocation[index];
             }
 
-            public static Almanac Parse(List<string> data)
+            public static Almanac Parse(List<string> data, bool isPartTwo = false)
             {
                 var result = new Almanac();
                 var map = default(RangeMap);
@@ -108,9 +139,25 @@ namespace SeedFertilizer
                         switch (parts[0].ToLowerInvariant())
                         {
                             case "seeds":
-                                foreach (var n in parts[1].Split(" ", StringSplitOptions.RemoveEmptyEntries))
+                                var seedData = parts[1].Split(" ", StringSplitOptions.RemoveEmptyEntries);
+
+                                if (isPartTwo)
                                 {
-                                    result.Seeds.Add(long.Parse(n));
+                                    for (int x = 0; x < seedData.Length; x += 2)
+                                    {
+                                        result.SeedRanges.Add(new SeedRange()
+                                        {
+                                            Start = long.Parse(seedData[x]),
+                                            Length = long.Parse(seedData[x + 1])
+                                        });
+                                    }
+                                }
+                                else
+                                {
+                                    foreach (var n in seedData)
+                                    {
+                                        result.Seeds.Add(long.Parse(n));
+                                    }
                                 }
                                 continue;
 
@@ -154,6 +201,12 @@ namespace SeedFertilizer
             }
         }
 
+        class SeedRange
+        {
+            public long Start;
+
+            public long Length;
+        }
 
         class RangeMap
         {
