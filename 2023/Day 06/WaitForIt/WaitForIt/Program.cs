@@ -6,18 +6,30 @@ namespace WaitForIt
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(PartOne());
-            Console.WriteLine("Hello, World!");
+            //Console.WriteLine(Solve(false));
+            Console.WriteLine(Solve(true));
+            Console.ReadLine();
         }
 
-        static double PartOne()
+        static double Solve(bool isPartTwo)
         {
             //var data = GetTestData1();
             var data = LoadFromFile("Input1.txt");
-            var times = data[0].Replace("Time:", "").Split(" ", StringSplitOptions.RemoveEmptyEntries);
-            var records = data[1].Replace("Distance:", "").Split(" ", StringSplitOptions.RemoveEmptyEntries);
+            string[] times;
+            string[] records;
 
-            var result = 1f;
+            if (isPartTwo)
+            {
+                times = [ data[0].Replace("Time:", "").Replace(" ", "") ];
+                records = [ data[1].Replace("Distance:", "").Replace(" ", "") ];
+            }
+            else
+            {
+                times = data[0].Replace("Time:", "").Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                records = data[1].Replace("Distance:", "").Split(" ", StringSplitOptions.RemoveEmptyEntries);
+            }
+
+            var result = 1L;
 
             for (long x = 0; x < times.Length; x++)
             {
