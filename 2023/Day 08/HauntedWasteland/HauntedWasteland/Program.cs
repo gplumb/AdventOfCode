@@ -7,8 +7,80 @@ namespace HauntedWasteland
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(PartOne());
+            // Console.WriteLine(PartOne());
+            Console.WriteLine(PartTwo());
             Console.ReadLine();
+        }
+
+
+        static long PartTwo()
+        {
+            // Can't brute force this one (it'll take FOREVER)
+            // Based on previous years, this looks like one for LCM...
+            // var data = GetTestData3();
+            var data = LoadFromFile("Input1.txt");
+            var network = new Network(data);
+            var nodes = new List<string>();
+            var count = 0L;
+
+            // We will track every time a node ends in z for each of the inputs
+            // and multiply outwards to get our large number
+            var cycles = new List<long>();
+
+            // Find our starting nodes and stash them
+            foreach (var kvp in network.Nodes)
+            {
+                if (kvp.Key.EndsWith("A"))
+                    nodes.Add(kvp.Key);
+            }
+
+            // Find the first 'Z' for each of our starting nodes
+            foreach (var start in nodes)
+            {
+                var step = start;
+                count = 0L;
+
+                foreach (char item in network)
+                {
+                    if (step.EndsWith("Z"))
+                        break;
+
+                    var direction = network.Nodes[step];
+                    step = (item == 'L') ? step = direction.Item1 : direction.Item2;
+                    count++;
+                }
+
+                cycles.Add(count);
+            }
+
+            // Now get the largest common multiple
+            var result = cycles[0];
+
+            for (int i = 1; i < cycles.Count; i++)
+            {
+                result = LowestCommonMultiple(result, cycles[i]);
+            }
+
+            return result;
+        }
+
+
+        static long LowestCommonMultiple(long x, long y)
+        {
+            return x * y / GreatestCommonDivisor(x, y);
+        }
+
+
+        static long GreatestCommonDivisor(long x, long y)
+        {
+            while (y != 0)
+            {
+                var t = y;
+                y = x % y;
+                x = t;
+            }
+
+            return x;
         }
 
 
@@ -18,7 +90,7 @@ namespace HauntedWasteland
             //var data = GetTestData2();
             var data = LoadFromFile("Input1.txt");
             var network = new Network(data);
-            var steps = 0L;
+            var count = 0L;
             var step = "AAA";
 
             foreach (char item in network)
@@ -30,10 +102,10 @@ namespace HauntedWasteland
                 
                 var direction = network.Nodes[step];
                 step = (item == 'L') ? step = direction.Item1 : direction.Item2;
-                steps++;
+                count++;
             }
 
-            return steps;
+            return count;
         }
 
         static char[] SPLIT_CHARS = new char[] { '=', ' ', '(', ')', ','};
@@ -105,6 +177,27 @@ namespace HauntedWasteland
                 "AAA = (BBB, BBB)",
                 "BBB = (AAA, ZZZ)",
                 "ZZZ = (ZZZ, ZZZ)",
+            };
+        }
+
+
+        /// <summary>
+        /// Test data
+        /// </summary>
+        static List<string> GetTestData3()
+        {
+            return new List<string>()
+            {
+                "LR",
+                "",
+                "11A = (11B, XXX)",
+                "11B = (XXX, 11Z)",
+                "11Z = (11B, XXX)",
+                "22A = (22B, XXX)",
+                "22B = (22C, 22C)",
+                "22C = (22Z, 22Z)",
+                "22Z = (22B, 22B)",
+                "XXX = (XXX, XXX)"
             };
         }
 
