@@ -4,12 +4,13 @@
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(PartOne());  
+            // Console.WriteLine(SolvePart(false));
+            Console.WriteLine(SolvePart(true));
             Console.ReadLine();
         }
 
 
-        static long PartOne()
+        static long SolvePart(bool isPartTwo)
         {
             // var data = GetTestData1();
             var data = LoadFromFile("Input1.txt");
@@ -18,6 +19,10 @@
             foreach (var item in data)
             {
                 var numbers = item.Split(' ').Select(int.Parse).ToList();
+
+                if (isPartTwo)
+                    numbers.Reverse();
+
                 sum += Solve(numbers);
             }
 
