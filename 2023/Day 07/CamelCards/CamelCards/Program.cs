@@ -38,21 +38,25 @@ namespace CamelCards
 
         static void Main(string[] args)
         {
-            // SpotChecks();
-            Console.WriteLine(PartOne());
+            //SpotChecks();
+            //SpotChecks2();
+            
+            //Console.WriteLine(Solve(false));
+            Console.WriteLine(Solve(true));
+            Console.ReadLine();
         }
 
 
-        static long PartOne()
+        static long Solve(bool jokersHigh)
         {
-            //var data = GetTestData1();
+            // var data = GetTestData1();
             var data = LoadFromFile("Input1.txt");
             var hands = new List<Hand>();
 
             foreach (var item in data)
-            {
+            {   
                 var datum = item.Split(" ");
-                var hand = new Hand(datum[0]);
+                var hand = new Hand(datum[0], jokersHigh);
                 hand.Bet = long.Parse(datum[1]);
                 hands.Add(hand);
             }
@@ -72,6 +76,24 @@ namespace CamelCards
             return total;
         }
 
+        static void SpotChecks2()
+        {
+            if (new Hand("QJJQ2", true).Type != HandType.FourOfAKind)
+                throw new Exception("Bug!");
+
+            if (new Hand("JJJJJ", true).Type != HandType.FiveOfAKind)
+                throw new Exception("Bug!");
+
+            var hands = new List<Hand>();
+            hands.Add(new Hand("JKKK2"));
+            hands.Add(new Hand("QQQQ2"));
+
+            // Sort descending (higherst first)            
+            hands.Sort((x, y) => y.CompareTo(x));
+
+            if (!hands[0].Data.Equals("QQQQ2"))
+                throw new Exception("Bug!");
+        }
 
         static void SpotChecks()
         {
@@ -132,26 +154,33 @@ namespace CamelCards
 
         public class Hand : IComparable
         {
-            public int[] Cards = new int[5];            
+            public int[] Cards = new int[5];
             public HandType Type;
             public string Data = "";
 
             public long Bet = 0;
 
-            public Hand(string text)
+            private int jokerCount = 0;
+
+            public Hand(string text, bool jokersHigh = false)
             {
                 if (string.IsNullOrWhiteSpace(text) || text.Length < 5)
                     throw new Exception("Bad data");
 
                 Data = text.ToUpper();
 
-                // Stash the cards, values and totals (the later will be used for sorting if types match)
                 for (int x = 0; x < 5; x++)
                 {
-                    Cards[x] = CardValues[Data[x]];
+                    var val = CardValues[Data[x]];
+
+                    if (jokersHigh && Data[x] == 'J')
+                        val = 1;
+
+                    Cards[x] = val;
+                    jokerCount += (jokersHigh && Data[x] == 'J') ? 1 : 0;
                 }
 
-                ClassifyHand();
+                ClassifyHand(jokersHigh);
             }
 
             public int CompareTo(object? other)
@@ -182,7 +211,7 @@ namespace CamelCards
                 return 0;
             }
 
-            private void ClassifyHand()
+            private void ClassifyHand(bool jokersHigh)
             {
                 var counts = new Dictionary<int, int>();
 
@@ -192,6 +221,14 @@ namespace CamelCards
                         counts.Add(card, 0);
 
                     counts[card]++;
+                }
+
+                // Fiddle cards for jokers before classifying (unless we have all jokers)
+                if (jokersHigh && jokerCount < 5)
+                {
+                    var highest = Cards.Where(x => x > 1).GroupBy(x => x).OrderByDescending(g => g.Count()).First().Key;
+                    counts[1] = 0;
+                    counts[highest] += jokerCount;
                 }
 
                 // Yup, this is not as efficient as a single-pass loop that checks things on the fly, but for such a
